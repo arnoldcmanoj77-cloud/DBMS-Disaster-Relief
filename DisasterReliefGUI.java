@@ -24,6 +24,17 @@ public class DisasterReliefGUI extends JFrame {
         header.setBorder(new EmptyBorder(20, 10, 20, 10));
         add(header, BorderLayout.NORTH);
 
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(Color.WHITE);
+
+        JLabel welcome = new JLabel(
+                "<html><center>Welcome to Disaster Relief Management System<br><br>Select a module from the left panel</center></html>",
+                JLabel.CENTER);
+        welcome.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+
+        centerPanel.add(welcome, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
+        
         JPanel sidebar = new JPanel(new GridLayout(7, 1, 10, 10));
         sidebar.setBorder(new EmptyBorder(30, 20, 30, 20));
         sidebar.setBackground(new Color(245, 245, 245));
