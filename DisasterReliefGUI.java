@@ -1,49 +1,77 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.*;
 import java.awt.*;
 import java.sql.*;
 
 public class DisasterReliefGUI extends JFrame {
 
+    private JLabel statusBar;
+
     public DisasterReliefGUI() {
 
         setTitle("Disaster Relief Management System");
-        setSize(550, 450);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new BorderLayout());
-
+        // ===== HEADER =====
         JLabel header = new JLabel("DISASTER RELIEF MANAGEMENT SYSTEM", JLabel.CENTER);
-        header.setFont(new Font("Arial", Font.BOLD, 18));
-        header.setBorder(BorderFactory.createEmptyBorder(20,10,20,10));
-        panel.add(header, BorderLayout.NORTH);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        header.setOpaque(true);
+        header.setForeground(Color.WHITE);
+        header.setBackground(new Color(183, 28, 28));
+        header.setBorder(new EmptyBorder(20, 10, 20, 10));
+        add(header, BorderLayout.NORTH);
 
-        JPanel menu = new JPanel(new GridLayout(7,1,15,15));
-        menu.setBorder(BorderFactory.createEmptyBorder(30,120,30,120));
+        // ===== SIDEBAR MENU =====
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new GridLayout(8, 1, 10, 10));
+        sidebar.setBorder(new EmptyBorder(30, 20, 30, 20));
+        sidebar.setBackground(new Color(245, 245, 245));
+        sidebar.setPreferredSize(new Dimension(250, 0));
 
-        JButton eventBtn = new JButton("DISASTER EVENTS");
-        JButton regionBtn = new JButton("AFFECTED REGIONS");
-        JButton campBtn = new JButton("RELIEF CAMPS");
-        JButton volunteerBtn = new JButton("VOLUNTEERS");
-        JButton resourceBtn = new JButton("RESOURCES");
-        JButton distributionBtn = new JButton("DISTRIBUTION");
-        JButton exitBtn = new JButton("EXIT");
+        JButton eventBtn = createMenuButton("Disaster Events");
+        JButton regionBtn = createMenuButton("Affected Regions");
+        JButton campBtn = createMenuButton("Relief Camps");
+        JButton volunteerBtn = createMenuButton("Volunteers");
+        JButton resourceBtn = createMenuButton("Resources");
+        JButton distributionBtn = createMenuButton("Distribution");
+        JButton exitBtn = createMenuButton("Exit");
 
-        menu.add(eventBtn);
-        menu.add(regionBtn);
-        menu.add(campBtn);
-        menu.add(volunteerBtn);
-        menu.add(resourceBtn);
-        menu.add(distributionBtn);
-        menu.add(exitBtn);
+        sidebar.add(eventBtn);
+        sidebar.add(regionBtn);
+        sidebar.add(campBtn);
+        sidebar.add(volunteerBtn);
+        sidebar.add(resourceBtn);
+        sidebar.add(distributionBtn);
+        sidebar.add(exitBtn);
 
-        panel.add(menu, BorderLayout.CENTER);
-        add(panel);
+        add(sidebar, BorderLayout.WEST);
 
-        // ✅ FIXED TABLE NAMES
+        // ===== MAIN WELCOME PANEL =====
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(Color.WHITE);
+
+        JLabel welcome = new JLabel(
+                "<html><center>Welcome to Disaster Relief Management System<br><br>Select a module from the left panel</center></html>",
+                JLabel.CENTER);
+        welcome.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+
+        centerPanel.add(welcome, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
+
+        // ===== STATUS BAR =====
+        statusBar = new JLabel(" Ready");
+        statusBar.setBorder(new EmptyBorder(5, 10, 5, 10));
+        statusBar.setOpaque(true);
+        statusBar.setBackground(new Color(230, 230, 230));
+        add(statusBar, BorderLayout.SOUTH);
+
+        // ===== BUTTON ACTIONS =====
         eventBtn.addActionListener(e -> openModule("disaster_event"));
-        regionBtn.addActionListener(e -> openModule("affected_region")); // FIXED
+        regionBtn.addActionListener(e -> openModule("affected_region"));
         campBtn.addActionListener(e -> openModule("relief_camp"));
         volunteerBtn.addActionListener(e -> openModule("volunteer"));
         resourceBtn.addActionListener(e -> openModule("resource"));
@@ -51,7 +79,18 @@ public class DisasterReliefGUI extends JFrame {
         exitBtn.addActionListener(e -> System.exit(0));
     }
 
-    // DATABASE CONNECTION
+    // ===== STYLED BUTTON =====
+    private JButton createMenuButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(new Color(198, 40, 40));
+        btn.setForeground(Color.WHITE);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    // ===== DATABASE CONNECTION =====
     public Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -66,15 +105,17 @@ public class DisasterReliefGUI extends JFrame {
         }
     }
 
-    // GENERIC MODULE WINDOW
+    // ===== MODULE WINDOW =====
     public void openModule(String tableName) {
 
         JFrame frame = new JFrame(tableName.toUpperCase() + " MANAGEMENT");
-        frame.setSize(800,450);
+        frame.setSize(900, 500);
         frame.setLocationRelativeTo(null);
 
         DefaultTableModel model = new DefaultTableModel();
         JTable table = new JTable(model);
+        table.setRowHeight(25);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         try {
             Connection con = getConnection();
@@ -99,9 +140,14 @@ public class DisasterReliefGUI extends JFrame {
         }
 
         JPanel btnPanel = new JPanel();
-        JButton addBtn = new JButton("ADD");
-        JButton deleteBtn = new JButton("DELETE");
-        JButton refreshBtn = new JButton("REFRESH");
+
+        JButton addBtn = new JButton("Add");
+        JButton deleteBtn = new JButton("Delete");
+        JButton refreshBtn = new JButton("Refresh");
+
+        styleActionButton(addBtn, new Color(46, 125, 50));
+        styleActionButton(deleteBtn, new Color(211, 47, 47));
+        styleActionButton(refreshBtn, new Color(2, 136, 209));
 
         btnPanel.add(addBtn);
         btnPanel.add(deleteBtn);
@@ -110,76 +156,23 @@ public class DisasterReliefGUI extends JFrame {
         frame.add(new JScrollPane(table), BorderLayout.CENTER);
         frame.add(btnPanel, BorderLayout.SOUTH);
 
-        // ADD RECORD
-        addBtn.addActionListener(e -> {
-            try {
-                Connection con = getConnection();
-                Statement st = con.createStatement();
-                ResultSet rs = st.executeQuery("SHOW COLUMNS FROM " + tableName);
-
-                StringBuilder cols = new StringBuilder();
-                StringBuilder vals = new StringBuilder();
-
-                while (rs.next()) {
-                    String col = rs.getString("Field");
-                    String extra = rs.getString("Extra");
-
-                    if (!extra.contains("auto_increment")) {
-                        String value = JOptionPane.showInputDialog("Enter " + col + ":");
-                        cols.append(col).append(",");
-                        vals.append("'").append(value).append("',");
-                    }
-                }
-
-                String query = "INSERT INTO " + tableName +
-                        " (" + cols.substring(0, cols.length()-1) + ")" +
-                        " VALUES (" + vals.substring(0, vals.length()-1) + ")";
-
-                st.executeUpdate(query);
-                JOptionPane.showMessageDialog(frame, "Added Successfully");
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Insert Error: " + ex.getMessage());
-            }
-        });
-
-        // DELETE RECORD (SMART ID DETECTION)
-        deleteBtn.addActionListener(e -> {
-            try {
-                String id = JOptionPane.showInputDialog("Enter ID to Delete:");
-
-                Connection con = getConnection();
-                Statement st = con.createStatement();
-
-                ResultSet rs = st.executeQuery("SHOW COLUMNS FROM " + tableName);
-                String idColumn = "";
-
-                while (rs.next()) {
-                    if (rs.getString("Key").equals("PRI")) {
-                        idColumn = rs.getString("Field");
-                        break;
-                    }
-                }
-
-                st.executeUpdate("DELETE FROM " + tableName +
-                        " WHERE " + idColumn + "=" + id);
-
-                JOptionPane.showMessageDialog(frame, "Deleted Successfully");
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Delete Error: " + ex.getMessage());
-            }
-        });
-
         refreshBtn.addActionListener(e -> {
             frame.dispose();
             openModule(tableName);
         });
 
         frame.setVisible(true);
+        statusBar.setText(" Opened module: " + tableName);
     }
 
-    // FIXED DISTRIBUTION FUNCTION
+    private void styleActionButton(JButton btn, Color color) {
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+    }
+
+    // ===== DISTRIBUTION FUNCTION (unchanged logic) =====
     public void handleDistribution() {
         try {
             int resourceId = Integer.parseInt(
@@ -191,7 +184,6 @@ public class DisasterReliefGUI extends JFrame {
 
             Connection con = getConnection();
 
-            // Reduce stock
             PreparedStatement pst = con.prepareStatement(
                     "UPDATE resource SET total_quantity = total_quantity - ? " +
                             "WHERE resource_id=? AND total_quantity>=?");
@@ -202,8 +194,6 @@ public class DisasterReliefGUI extends JFrame {
             int rows = pst.executeUpdate();
 
             if (rows > 0) {
-
-                // Insert into correct table
                 PreparedStatement dist = con.prepareStatement(
                         "INSERT INTO resource_distribution(resource_id,camp_id,quantity_distributed,distribution_date) VALUES(?,?,?,CURDATE())");
                 dist.setInt(1, resourceId);
@@ -212,9 +202,10 @@ public class DisasterReliefGUI extends JFrame {
                 dist.executeUpdate();
 
                 JOptionPane.showMessageDialog(this, "Distributed Successfully");
-
+                statusBar.setText(" Distribution Completed");
             } else {
                 JOptionPane.showMessageDialog(this, "Not Enough Stock");
+                statusBar.setText(" Distribution Failed");
             }
 
         } catch (Exception e) {
